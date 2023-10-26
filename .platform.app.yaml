@@ -35,7 +35,7 @@ web:
 
 mounts:
     "/var": { source: local, source_path: var }
-    "/public/uploads": { source: local, source_path: uploads }
+    "/public/uploads": { source: service, service: files, source_path: uploads }
 
 relationships:
     database: "database:postgresql"
@@ -59,6 +59,14 @@ crons:
         # See https://github.com/fabpot/local-php-security-checker
         spec: '50 23 * * *'
         cmd: if [ "$PLATFORM_ENVIRONMENT_TYPE" = "production" ]; then croncape php-security-checker; fi
+
+    comment_cleanup:
+        # Cleanup every night at 11.50 pm (UTC).
+        spec: '50 23 * * *'
+        cmd: |
+            if [ "$PLATFORM_ENVIRONMENT_TYPE" = "production" ]; then
+                croncape symfony console app:comment:cleanup
+            fi
 
 workers:
     messenger:

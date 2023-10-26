@@ -15,6 +15,9 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use App\Message\CommentMessage;
 use Symfony\Component\Messenger\MessageBusInterface;
+use Symfony\Component\Notifier\Notification\Notification;
+use Symfony\Component\Notifier\NotifierInterface;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 class ConferenceController extends AbstractController
 {
@@ -31,18 +34,18 @@ class ConferenceController extends AbstractController
     {
         return $this->render('conference/index.html.twig', [
             'conferences' => $conferenceRepository->findAll(),
-            ])->setSharedMaxAge(3600);
+            ])->setSharedMaxAge(1);
     }
     #[Route('/conference_header', name: 'conference_header')]
         public function conferenceHeader(ConferenceRepository $conferenceRepository): Response
         {
             return $this->render('conference/header.html.twig', [
                 'conferences' => $conferenceRepository->findAll(),
-                ])->setSharedMaxAge(3600);
+                ])->setSharedMaxAge(1);
         }
     
     #[Route('/conference/{slug}', name: 'conference')]
-    public function show(Request $request,Conference $conference,CommentRepository $commentRepository,#[Autowire('%photo_dir%')] string $photoDir,): Response {
+    public function show(Request $request,Conference $conference,CommentRepository $commentRepository,#[Autowire('%photo_dir%')] string $photoDir,NotifierInterface $notifier,): Response {
         $comment = new Comment();
         $form = $this->createForm(CommentType::class, $comment);
         $form->handleRequest($request);
@@ -61,10 +64,14 @@ class ConferenceController extends AbstractController
                                 'referrer' => $request->headers->get('referer'),
                                 'permalink' => $request->getUri(),
                             ];
-                            $this->bus->dispatch(new CommentMessage($comment->getId(), $context));
-
+                            $reviewUrl = $this->generateUrl('review_comment', ['id' => $comment->getId()], UrlGeneratorInterface::ABSOLUTE_URL);
+            $this->bus->dispatch(new CommentMessage($comment->getId(), $reviewUrl, $context));
+                            $notifier->send(new Notification('Thank you for the feedback; your comment will be posted after moderation.', ['browser']));
             return $this->redirectToRoute('conference', ['slug' => $conference->getSlug()]);
         }
+        if ($form->isSubmitted()) {
+                        $notifier->send(new Notification('Can you check your submission? There are some problems with it.', ['browser']));
+                    }
         $offset = max(0, $request->query->getInt('offset', 0));
         $paginator = $commentRepository->getCommentPaginator($conference, $offset);
         return $this->render('conference/show.html.twig', [
