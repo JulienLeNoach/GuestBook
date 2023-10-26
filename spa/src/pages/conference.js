@@ -8,7 +8,7 @@ function Comment({comments}) {
     }
 
     if (!comments) {
-        return <div className="text-center pt-4">Loading...</div>;
+        return <div className="text-center pt-4">Loading. ..</div>;
     }
 
     return (
