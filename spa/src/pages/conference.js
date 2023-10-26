@@ -35,7 +35,7 @@ export default function Conference({conferences, slug}) {
     const conference = conferences.find(conference => conference.slug === slug);
     const [comments, setComments] = useState(null);
 
-    useEffect(() => {
+    useEffect(() => {   
         findComments(conference).then(comments => setComments(comments));
     }, [slug]);
 

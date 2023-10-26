@@ -46,7 +46,7 @@
                         </div>
                     </div>
                 {% endfor %}
-                <div>There are {{ comments|length }} comments.</div>
+                <div>{{ 'nb_of_comments'|trans({count: comments|length}) }}</div>
                 {% if previous >= 0 %}
                     <a href="{{ path('conference', { slug: conference.slug, offset: previous }) }}">Previous</a>
                 {% endif %}
@@ -55,7 +55,7 @@
                 {% endif %}
             {% else %}
                 <div class="text-center">
-                    No comments have been posted yet for this conference.
+                    No comments have been posted yet for this conferencs.
                 </div>
             {% endif %}
         </div>
