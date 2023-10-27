@@ -19,6 +19,12 @@ services:
     # uncomment to store Blackfire credentials in a local .env.local file
     #env_file: .env.local
     environment:
+      BLACKFIRE_SERVER_ID: c5defff8-6350-4656-bd92-4dddd613f144
+      BLACKFIRE_SERVER_TOKEN: db9cf779430dcaf223128908afdaa0081a9ffb80f69249ca0599e6f3379ff5a3
+      BLACKFIRE_CLIENT_ID: dcf17c60-943d-4ca8-9b69-de59df1e7ed2
+      BLACKFIRE_CLIENT_TOKEN: 92672cbc139caa5dad5b4204baf2823475badd9e6d256a5fc3fd17d3651706cd
       BLACKFIRE_LOG_LEVEL: 4
     ports: ["8307"]
+
+
 ###< blackfireio/blackfire-symfony-meta ###
